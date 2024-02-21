@@ -131,15 +131,10 @@ frequency1=1./diff(new_time1);
 new_data1=diff(new_magnitude1);
 
 figure
-plot(new_time1-new_time1(1),new_magnitude1)
+plot(new_time1,new_magnitude1)
 hold on
-title('Flight 1','FontSize',14)
-xlabel('Time [s]','FontSize',12)
-ylabel('Wind Velocity [m/s]','FontSize',12)
-hold off
-
-
-
+xlabel('Time [s] ')
+ylabel('Wind s')
 
 wind_matrix_final_1=[new_time1,new_magnitude1]; %wind vector from launch to burst of flight 1: 1st column is GPS time from the first value after the GPS istant of launch 398613.3 to the last value before burst istanat at 402713.3, second column values are the wind magnitude
 wind_matrix_components_1=[new_time1,v_x1,v_y1];
@@ -153,14 +148,6 @@ v_y2=diff24Wind2(linearIndexL2:linearIndexB2);
 frequency2=1./diff(new_time2);
 new_data2=diff(new_magnitude2);
 
-figure
-plot(new_time2-new_time2(1),new_magnitude2)
-hold on
-title('Flight 2','FontSize',14)
-xlabel('Time [s]','FontSize',12)
-ylabel('Wind Velocity [m/s]','FontSize',12)
-hold off 
-
 wind_matrix_final_2=[new_time2,new_magnitude2]; %wind vector from launch to burst of flight 2: 1st column is GPS time from the first value after the GPS istant of launch 399283.6 to the last value before burst istanat at 403638.1
 wind_matrix_components_2=[new_time2,v_x2,v_y2];
 %from 5 min 20 sec to 6 min 20 sec since launch
@@ -170,8 +157,6 @@ w2=398613.3+6*60+20;
 [val,ind2]=min(abs(pressures1(:,1) - w2));
 w1_time_mag_dir=[allTime1(ind1:ind2),teta1(ind1:ind2),windMagnitude1(ind1:ind2)];
 w1_restricted=[allTime1(ind1:ind2),diff13Wind1(ind1:ind2),diff24Wind1(ind1:ind2)];
-
-
 %%
 
 
