@@ -94,7 +94,7 @@ load('bcmAllPins1.mat')
 
 m_G=2.418+2.2355;    %gondola  mass (plate + avionic)[kg]
 l_t=sqrt(0.066^2+2.55^2);    %tethers lenghts
-k=83e9* 0.00635/l_t;      %elastic coefficent tethers %83e9
+k=883e6* 0.00635^2*pi/l_t;      %elastic coefficent tethers %83e9
 c=0.1;      %damping coefficent tethers
 radius_G=0.204; %Radius of attachment point from center of gondola plate [m]
 radius_BCM=0.138; %Radius of attachment point from center of BCM plate [m]
@@ -126,7 +126,7 @@ Id=eye(4);
 %*************************************************************************
 
 state_count=3*5;
-measurement_count= 20000 %length(t);
+measurement_count= 100 %length(t);
 sensor_count=3*2+2;
 
 % SYMBOLIC FUNCTIONS (symbolic is used just to generate the Jacobian matrix)
@@ -287,8 +287,8 @@ wind_std_xy=std(windG,0,2);
 acc_std_G=std(ac_mG,0,2);
 acc_std_B=std(ac_mB,0,2);
 
-% p=[0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,];
-p=[acc_std_G'*4,acc_std_B'*4,acc_std_G'*2,acc_std_B'*2,acc_std_G(1:2)'-wind_std_xy',0.1];
+p=[0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,];
+% p=[acc_std_G'*4,acc_std_B'*4,acc_std_G'*2,acc_std_B'*2,acc_std_G(1:2)'-wind_std_xy',0.1];
 % p=[acc_std_G'*4,acc_std_B'*4,acc_std_G',acc_std_B',2,2,2];
 P=diag(p);
 diag_P(:,1) = p;
@@ -315,23 +315,25 @@ diag_P(:,1) = p;
 % disp("Unobservable states indices: ");
 % disp(unobservable_states_indices);
 
-% [~, ~, ~, rhoG_val0] = atmosisa(double(x_0(3)));
-% [~, ~, ~, rhoB_val0] = atmosisa(double(x_0(6)));
-% J_0=J_f_num(x_0,rhoG_val0,rhoB_val0);
-% 
-% P_dot_0=J_0*P+P*J_0'+Q;
-% % P_P=integral(@(t)P_dot_0,t(1),0.5,'ArrayValued', true)
-% 
-% 
-% 
-% fun = @(t, P) reshape((J_0*reshape(P, size(J_0)) + reshape(P, size(J_0))*J_0' + Q)', [], 1);
-% 
-% 
-% [t, P_P] = ode45(fun, [0:0.000001:0.5], P);
-% P_P = reshape(P_P(end, :), size(P));
-% sqrt(P_P(9,9))
+[~, ~, ~, rhoG_val0] = atmosisa(double(x_0(3)));
+[~, ~, ~, rhoB_val0] = atmosisa(double(x_0(6)));
+J_0=J_f_num(x_0,rhoG_val0,rhoB_val0);
+
+P_dot_0=J_0*P+P*J_0'+Q;
+% P_P=integral(@(t)P_dot_0,t(1),0.5,'ArrayValued', true)
 
 
+
+fun = @(t, P) reshape((J_0*reshape(P, size(J_0)) + reshape(P, size(J_0))*J_0' + Q)', [], 1);
+
+
+[t, P_P] = ode45(fun, [0:0.000001:0.5], P);
+P_P = reshape(P_P(end, :), size(P));
+rap=max(P_P,[],'all')/min(P_P,[],'all')
+sqrt(P_P(9,9))
+
+
+%% 
 
 
 	

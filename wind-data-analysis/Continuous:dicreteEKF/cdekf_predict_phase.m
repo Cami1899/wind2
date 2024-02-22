@@ -14,7 +14,8 @@ function [x_p, SE_covariance,P_diag,t] = cdekf_predict_phase(jacobian_func,dt_be
 
 %     jacobian_func(x_0,rhoG_val,rhoB_val)
 
-    dot_SE_covariance= @(x,Pp_old,rhoG,rhoB) jacobian_func(x,rhoG,rhoB) * reshape(Pp_old,[state_count,state_count]) +  reshape(Pp_old,[state_count,state_count]) * jacobian_func(x,rhoG,rhoB)'+ Q;
+%     dot_SE_covariance= @(x,Pp_old,rhoG,rhoB) jacobian_func(x,rhoG,rhoB) * reshape(Pp_old,[state_count,state_count]) +  reshape(Pp_old,[state_count,state_count]) * jacobian_func(x,rhoG,rhoB)'+ Q;
+    dot_SE_covariance= @(x,Pp_old,rhoG,rhoB) jacobian_func(x,rhoG,rhoB) * reshape(Pp_old,[state_count,state_count]) * jacobian_func(x,rhoG,rhoB)'+ Q;
     [t,Pp_vector]=ode113 (@(t,Pp_vector) reshape(dot_SE_covariance(x_0,Pp_vector,rhoG_val,rhoB_val),[state_count^2,1]),[start_time:h:finish_time],reshape(P_update,[state_count^2,1]));
     SE_covariance=reshape(Pp_vector(end,:),size(P_update));
 	P_diag=Pp_vector(:,1:state_count+1:end)';
