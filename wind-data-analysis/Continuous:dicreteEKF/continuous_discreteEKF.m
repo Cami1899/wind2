@@ -57,32 +57,33 @@ t_G=CPU2GPS('gondola1',gondolaAllPimu1(i_lG:i_bG,1));
 windG=[wind_matrix(:,2)';wind_matrix(:,3)'];
 t_wind=wind_matrix(:,1);
 
-time_vectors = {t_B, t_G, t_wind};
+% time_vectors = {t_B, t_G, t_wind};
 % time_vectors = {t_G};
+time_vectors = {t_B, t_G};
 times= sort(cat(1, time_vectors{:}));
 t=unique(times-times(1));
 t_B=t_B-times(1);
 t_G=t_G-times(1);
 t_wind=t_wind-times(1);
 start_time=t(1);
-%  t=t(1:10:end);
+
 %*************************************************************************
 load("allPinsGondola1.mat")
 load('bcmAllPins1.mat')
 
 
-[v,index_lB]=min(abs(CPU2GPS('bcm1',bcmAllPins1(:,1))-398613.3)); %For Flight 1, launch happens at GPS Time = 398613.3
-[v,index_bB]=min(abs(CPU2GPS('bcm1',bcmAllPins1(:,1))-402713.3)); %For Flight 1, burst happens at GPS Time = 402713.3
-
-[v,index_lG]=min(abs(CPU2GPS('gondola1',allPinsgondola1(:,1))-398613.3)); %For Flight 1, launch happens at GPS Time = 398613.3
-[v,index_bG]=min(abs(CPU2GPS('gondola1',allPinsgondola1(:,1))-402713.3)); %For Flight 1, burst happens at GPS Time = 402713.3
-
-t_velB=CPU2GPS('bcm1',bcmAllPins1(index_lB:index_bB,1));
-t_velB=t_velB-t_velB(1);
-t_velG=CPU2GPS('gondola1',allPinsgondola1(index_lG:index_bG,1));
-t_velG=t_velG-t_velG(1);
-vel_G_measure=[allPinsgondola1(index_lG:index_bG,11)';allPinsgondola1(index_lG:index_bG,12)';allPinsgondola1(index_lG:index_bG,13)'];
-vel_B_measure=[bcmAllPins1(index_lB:index_bB,11)';bcmAllPins1(index_lB:index_bB,12)';bcmAllPins1(index_lB:index_bB,13)'];
+% [v,index_lB]=min(abs(CPU2GPS('bcm1',bcmAllPins1(:,1))-398613.3)); %For Flight 1, launch happens at GPS Time = 398613.3
+% [v,index_bB]=min(abs(CPU2GPS('bcm1',bcmAllPins1(:,1))-402713.3)); %For Flight 1, burst happens at GPS Time = 402713.3
+% 
+% [v,index_lG]=min(abs(CPU2GPS('gondola1',allPinsgondola1(:,1))-398613.3)); %For Flight 1, launch happens at GPS Time = 398613.3
+% [v,index_bG]=min(abs(CPU2GPS('gondola1',allPinsgondola1(:,1))-402713.3)); %For Flight 1, burst happens at GPS Time = 402713.3
+% 
+% t_velB=CPU2GPS('bcm1',bcmAllPins1(index_lB:index_bB,1));
+% t_velB=t_velB-t_velB(1);
+% t_velG=CPU2GPS('gondola1',allPinsgondola1(index_lG:index_bG,1));
+% t_velG=t_velG-t_velG(1);
+% vel_G_measure=[allPinsgondola1(index_lG:index_bG,11)';allPinsgondola1(index_lG:index_bG,12)';allPinsgondola1(index_lG:index_bG,13)'];
+% vel_B_measure=[bcmAllPins1(index_lB:index_bB,11)';bcmAllPins1(index_lB:index_bB,12)';bcmAllPins1(index_lB:index_bB,13)'];
 
 
 % figure
@@ -98,9 +99,11 @@ c=0.1;      %damping coefficent tethers
 radius_G=0.204; %Radius of attachment point from center of gondola plate [m]
 radius_BCM=0.138; %Radius of attachment point from center of BCM plate [m]
 C_D_G=1.3;  %gondola drag coefficient  (considering as a rectangle with d/h=3)
-S_G=[2*radius_G *0.134;2*radius_G *0.134;radius_G^2*pi] ;    %gondola normal to flow surface [m^2] (outer diameter of the plate * height of the plate)
+S_G=2*radius_G *0.134;   %gondola normal to flow surface [m^2] (outer diameter of the plate * height of the plate)
+% C_D_G=1.3;  %gondola drag coefficient  (considering as a rectangle with d/h=3)
+% S_G=[2*radius_G *0.134;2*radius_G *0.134;radius_G^2*pi] ;    %gondola normal to flow surface [m^2] (outer diameter of the plate * height of the plate)
 m_BCM=0.880+1.822;    %BCM mass (plate + avionic) [kg]
-C_D_B=0.47;  %BCM drag coefficient (considering as a rectangle with d/h=2.8)
+C_D_B= 0.38 %0.47;  %BCM drag coefficient (considering as a rectangle with d/h=2.8)
 lambda=0 %0.15;  
 sigma=0 %0.1; %linear coffcient of evolution of absolute wind on gondola 
 I_G=  [0.075830966	 0.000025218	    -0.001299338;
@@ -115,14 +118,15 @@ rho_gas=0.166; %Helium density [kg/m^3]
 [~, ~, ~, rho_atm_balance] = atmosisa(double(32000)); %balance point at 32 km
 VolB=abs((m_G+m_BCM)/(rho_atm_balance-rho_gas)); %45.0045;  %balloon as a sphere with a radius of 12 m 
 r_balloon=(3*VolB/(4*pi))^(1/3);
-S_BCM=[0.375*0.134+r_balloon^2*pi;0.375*0.134+r_balloon^2*pi;r_balloon^2*pi;]; %BCM normal to flow surface   [m^2] (outer diameter of the plate * height of the plate+ sphere surface normal to flux) 
+S_BCM=0.375*0.134
+% S_BCM=[0.375*0.134+r_balloon^2*pi;0.375*0.134+r_balloon^2*pi;r_balloon^2*pi;]; %BCM normal to flow surface   [m^2] (outer diameter of the plate * height of the plate+ sphere surface normal to flux) 
 g=[0; 0; -9.81]; %gravity vector [m/s^2]
 Id=eye(4);
 
 %*************************************************************************
 
 state_count=3*5;
-measurement_count= 10000 %length(t);
+measurement_count= 20000 %length(t);
 sensor_count=3*2+2;
 
 % SYMBOLIC FUNCTIONS (symbolic is used just to generate the Jacobian matrix)
@@ -140,7 +144,7 @@ rB = [r_B1; r_B2; r_B3];
 vB = [v_B1; v_B2; v_B3];
 WG = [W_G1; W_G2; W_G3];
 
-
+%p=0.0001
 
 
 
@@ -150,8 +154,8 @@ F_t = 6*(F_el + F_d);                                   %tether force
 F_a_b = -sign(vB - WG) * 0.5 * rhoB * C_D_B .* S_BCM .* (vB - WG).^2;  %aerodinamic force on gondola
 F_a_G =-sign(vG - WG) * 0.5 * rhoG * C_D_G .* S_G .* (vG - WG).^2;    %aerodinamic force on bcm
 Fa=-(rhoB-rho_gas)*VolB*g;                                 %buoyancy force
-F_ext_BCM = Fa - 1* F_t + F_a_b + m_BCM*g;          %externak forces on bcm
-F_ext_G = 1*F_t + F_a_G + m_G*g;                    %externak forces on gondola
+F_ext_BCM = Fa -  F_t + F_a_b + m_BCM*g;          %externak forces on bcm
+F_ext_G = F_t + F_a_G + m_G*g;                    %externak forces on gondola
 
 f_sym=[vG;
        vB;
@@ -224,17 +228,17 @@ J_h7_num= matlabFunction(J_h7, 'Vars', {[r_G1; r_G2; r_G3; r_B1; r_B2; r_B3; v_G
 
 
 
-
+ 
 
 
 
 
 
 %PROCESS NOISE COVARIANCE MATRIX
-q=[0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,8,8,8];
- %q=[0.00,0.00,0.00,0.00,0.00,0.00,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0];
-
-% q=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+ q=[0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,8,8,8];
+%  q=[0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,];
+% q=[5,5,5,5,5,5,5,5,5,5,5,5,8,8,8];
+ %q=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
 %  q=zeros(state_count,1);
  Q=diag(q);
 
@@ -276,14 +280,16 @@ vel_1B=(ac_mB(:,3)-ac_mB(:,2))*(t_B(3)-t_B(2));
 x_0G=(vel_1G-vel_0G)*(t_G(3)-t_G(2));
 x_0B=(vel_1B-vel_0B)*(t_B(3)-t_B(2));
 z_0G=5*1.60;
-x_0=[0;0;z_0G;0.0000000001;0.0000000001;sqrt(0.066^2+2.55^2)+z_0G;vel_0G;vel_0B;vel_0G(1,1)-windG(1);vel_0G(1,1)-windG(2);0.1];
+% x_0=[0;0;z_0G;0.0000000001;0.0000000001;sqrt(0.066^2+2.55^2)+z_0G;vel_0G;vel_0B;vel_0G(1,1)-windG(1);vel_0G(1,1)-windG(2);0.1];
 % x_0=[x_0G;x_0B;vel_0G;vel_0B;vel_0G(1,1)-windG(1);vel_0G(1,1)-windG(2);0.1];
+x_0=[0;0;z_0G;0.0000000001;0.0000000001;sqrt(0.066^2+2.55^2)+z_0G;3;3;3;3;3;3;vel_0G(1,1)-windG(1);vel_0G(1,1)-windG(2);0.1];
 wind_std_xy=std(windG,0,2);
 acc_std_G=std(ac_mG,0,2);
 acc_std_B=std(ac_mB,0,2);
-%p=[5,5,5,5,5,5,acc_std_G'*2,acc_std_B'*2,acc_std_G(1:2)'-wind_std_xy',0.1];
-%p=[acc_std_G'*4,acc_std_B'*4,acc_std_G'*2,acc_std_B'*2,acc_std_G(1:2)'-wind_std_xy',0.1];
-p=[acc_std_G'*4,acc_std_B'*4,acc_std_G',acc_std_B',2,2,2];
+
+% p=[0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,0.000001,];
+p=[acc_std_G'*4,acc_std_B'*4,acc_std_G'*2,acc_std_B'*2,acc_std_G(1:2)'-wind_std_xy',0.1];
+% p=[acc_std_G'*4,acc_std_B'*4,acc_std_G',acc_std_B',2,2,2];
 P=diag(p);
 diag_P(:,1) = p;
 
@@ -321,9 +327,10 @@ diag_P(:,1) = p;
 % fun = @(t, P) reshape((J_0*reshape(P, size(J_0)) + reshape(P, size(J_0))*J_0' + Q)', [], 1);
 % 
 % 
-% [t, P_P] = ode45(fun, [0:0.01:0.5], P);
+% [t, P_P] = ode45(fun, [0:0.000001:0.5], P);
 % P_P = reshape(P_P(end, :), size(P));
 % sqrt(P_P(9,9))
+
 
 
 
@@ -337,7 +344,7 @@ P_old = P;
 	
 	x_p(:,1) = x_0; 
 
-	dt_int=0.00001;
+	dt_int=0.0001;
 
 %eliminate the interval between t element that is less than h (integration step ode)
    index_t = length(t);
@@ -350,9 +357,11 @@ end
 
 t = new_t;  
 l=0;
+ 
+
 for j=1:measurement_count
 
-        sstart_time=t(j);
+        start_time=t(j);
 
         dt_between_measurements= t(j+1)-t(j);
         
@@ -376,6 +385,7 @@ end
 
 % measurement_count=449;
 std=sqrt(P_diag_matrix);
+
 
 
 index_G=find(t_G<t(measurement_count));

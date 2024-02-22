@@ -133,9 +133,10 @@ new_data1=diff(new_magnitude1);
 figure
 plot(new_time1-new_time1(1),new_magnitude1)
 hold on
-title('Flight 1','FontSize',14)
-xlabel('Time [s]','FontSize',12)
-ylabel('Wind Velocity [m/s]','FontSize',12)
+% title('Flight 1','FontSize',16)
+xlim([0,4086])
+xlabel('Time [s]','FontSize',14)
+ylabel('Wind Velocity [m/s]','FontSize',14)
 hold off
 
 
@@ -156,10 +157,16 @@ new_data2=diff(new_magnitude2);
 figure
 plot(new_time2-new_time2(1),new_magnitude2)
 hold on
-title('Flight 2','FontSize',14)
-xlabel('Time [s]','FontSize',12)
-ylabel('Wind Velocity [m/s]','FontSize',12)
+xlim([0,4352])
+% title('Flight 2','FontSize',16)
+xlabel('Time [s]','FontSize',14)
+ylabel('Wind Velocity [m/s]','FontSize',14)
 hold off 
+
+figure
+polarhistogram(new_angle2,100)
+% title('Wind angle variation, Flight 1', 'FontSize', 20)
+
 
 wind_matrix_final_2=[new_time2,new_magnitude2]; %wind vector from launch to burst of flight 2: 1st column is GPS time from the first value after the GPS istant of launch 399283.6 to the last value before burst istanat at 403638.1
 wind_matrix_components_2=[new_time2,v_x2,v_y2];

@@ -1,4 +1,4 @@
-function [x_p]=model_function(x,C_D_B,S_BCM,C_D_G,S_G,rho_gas,VolB,g,k,c,l_t,m_G,m_BCM,lambda,sigma)
+function [x_p]=model_function(x,C_D_B,S_BCM,C_D_G,S_G,rho_gas,VolB,g,k,c,l_t,m_G,m_BCM,lambda,sigma,v_ref,z_ref)
 
 [TT, a, pp, rhoG_val] = atmosisa(double(x(3)));
 [TT, a, pp, rhoB_val] = atmosisa(double(x(6)));
@@ -28,5 +28,6 @@ x_p=[ x(7:9);
       sigma;
       sigma;
       lambda];
+%(lambda*v_ref*(x(6)/z_ref)^(lambda - 1))/z_ref
 
 end
