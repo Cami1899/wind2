@@ -4,7 +4,6 @@ function [x_p]=model_function(x,C_D_B,S_BCM,C_D_G,S_G,rho_gas,VolB,g,k,c,l_t,m_G
 [TT, a, pp, rhoB_val] = atmosisa(double(x(6)));
 
 
-
 if (norm(x(4:6)-x(1:3))-l_t <= 0)   
                 F_el = [0;0;0];
                 F_d = [0;0;0];
@@ -28,6 +27,8 @@ x_p=[ x(7:9);
       sigma;
       sigma;
       lambda];
+
+
 %(lambda*v_ref*(x(6)/z_ref)^(lambda - 1))/z_ref
 
 end
