@@ -29,47 +29,103 @@ close
  
 %------------------------------------------------------------------------
 
-%Import data from flight test
-load('wind_matrix_finale1.mat')
-load('wind_matrix_finale2.mat')
+% %Import data from flight test
+% 
+% load('wind_matrix_finale1.mat')
+% load('wind_matrix_finale2.mat')
+% 
+%         % %Flight1 
+%         
+%         wind_speed1=wind_matrix_final_1(:,2);
+%         time1=wind_matrix_final_1(:,1);
+%         
+%         % %Flight2
+%         wind_speed2=wind_matrix_final_2(:,2); 
+%         time2=wind_matrix_final_2(:,1);
+% 
+% %Fix the seed of random generator to reproduce same results 
+% seed_value = 42;
+% rng(seed_value);
+% 
+% %Choose between wind data of Flight 1 and Flight 2 and the period of time
+% 
+% choice_flight=input('Which flight test? (Digit 1 for flight 1 or 2 for flight 2) ')
+% if choice_flight==1
+% 
+%     % %Flight1
+%     %index (1:17961)=10min
+%         wind_speed=wind_speed1(1:17961);
+%         time=time1(1:17961);
+% else
+% 
+%     % %Flight2
+%         %index (1:17533)=0-10 min  
+%         %index (1:3593)=0-2 min
+%         %index (89806:107767)=50-60 min
+%         wind_speed=wind_speed2(1:17533);
+%         time=time2(1:17533);
+% end
+% 
+% %Resampling of values with uniformly time intervals
+% choice_resample=input('Which uniformly time interval? (In seconds) ')
+% time_interval=choice_resample;
+% Fs=1/time_interval;
+% [wind_speed,time]=resample(wind_speed,time,Fs);
 
-        % %Flight1 
-        
-        wind_speed1=wind_matrix_final_1(:,2);
-        time1=wind_matrix_final_1(:,1);
-        
-        % %Flight2
-        wind_speed2=wind_matrix_final_2(:,2); 
-        time2=wind_matrix_final_2(:,1);
+%------------------------------------------------------------------------
 
-%Fix the seed of random generator to reproduce same results 
-seed_value = 42;
-rng(seed_value);
 
-%Choose between wind data of Flight 1 and Flight 2 and the period of time
 
-choice_flight=input('Which flight test? (Digit 1 for flight 1 or 2 for flight 2) ')
-if choice_flight==1
 
-    % %Flight1
-    %index (1:17961)=10min
-        wind_speed=wind_speed1(1:17961);
-        time=time1(1:17961);
-else
 
-    % %Flight2
-        %index (1:17533)=0-10 min  
-        %index (1:3593)=0-2 min
-        %index (89806:107767)=50-60 min
-        wind_speed=wind_speed2(1:17533);
-        time=time2(1:17533);
-end
+% Noise parameters
+signal_length = 6000; % Signal length (e.g., 10 minutes at 10 Hz)
+base_mean = 5; % Base mean of the noise
+base_std_dev = 1; % Base standard deviation of the noise
 
-%Resampling of values with uniformly time intervals
-choice_resample=input('Which uniformly time interval? (In seconds) ')
-time_interval=choice_resample;
-Fs=1/time_interval;
-[wind_speed,time]=resample(wind_speed,time,Fs);
+% Define the time intervals and corresponding mean and variance values
+time_intervals = [1, 4000, 6000]; % Start and end of each interval
+mean_intervals = [5, 9, 7.55]; % Mean values for each interval
+variance_intervals = [1, 2, 1]; % Variance values for each interval
+
+% Linearly interpolate the mean and variance values between intervals
+interpolated_mean = interp1(time_intervals, mean_intervals, 1:signal_length, 'linear', 'extrap');
+interpolated_variance = interp1(time_intervals, variance_intervals, 1:signal_length, 'linear', 'extrap');
+
+% Generate noise with varying mean and variance
+gust_signal_generated= interpolated_variance .* randn(1, signal_length) + interpolated_mean;
+
+
+% Define sinusoidal parameters
+frequency = 0.5; % Frequency of the sinusoid (e.g., 0.1 Hz)
+amplitude = 0.5; % Amplitude of the sinusoid
+
+% Generate sinusoidal component
+t = 0:1/10:600; % Time vector at 10 Hz (6000 samples for 10 minutes)
+sinusoidal_component = amplitude * sin(2 * pi * frequency * t);
+
+% Add sinusoidal component to the gust signal
+gust_signal_with_sine = gust_signal_generated + sinusoidal_component(1:6000);
+
+% Define second sinusoidal parameters
+frequency2 =0.092; % Frequency of the second sinusoid (e.g., 0.05 Hz)
+amplitude2 = 1; % Amplitude of the second sinusoid
+phase_shift = pi/4; % Phase shift of the second sinusoid (e.g., pi/2)
+
+% Generate second sinusoidal component
+sinusoidal_component2 = amplitude2 * cos(2 * pi * frequency2 * t + phase_shift);
+
+% Add second sinusoidal component to the gust signal
+gust_signal = gust_signal_with_sine + sinusoidal_component2(1:6000);
+
+% Plot the resulting signal
+figure;
+plot(gust_signal);
+xlabel('Time [s]');
+ylabel('Wind Speed (m/s)');
+title('Wind gust Signal with Two Sinusoidal Components');
+
+wind_speed=gust_signal;
 
 
 %*************************************************
@@ -78,11 +134,11 @@ Fs=1/time_interval;
 
 %1.1 Calculate the ACF of data
 
-choice_nLag=input('How many lags? ')
-% maxLag=100;
-maxLag=choice_nLag;
+% choice_nLag=input('How many lags? ')
+% maxLag=choice_nLag;
+maxLag=100;
 [acf,lag]=autocorr(wind_speed,maxLag); 
-lag=(0:maxLag)';
+% lag=(0:maxLag)';
 
 
         % %ACF plots
@@ -105,12 +161,15 @@ lag=(0:maxLag)';
         % grid on;
  
  
+  
+  
+ 
 
 %1.2 Fit a weighted sum of exponential and/or damped sinusoidal functions to data ACF
 
 %1.2. a)Evaluate the fit
 
-PopSz = 700;
+PopSz = 500;
 [coef,num_comp,fit_function] = function_fitACF(acf,lag,PopSz) %coef=(w,alfa,omega)
 
     save('f2_coef_2min_lag100_res1',"coef")
