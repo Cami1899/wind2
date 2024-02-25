@@ -58,7 +58,7 @@ t_G=CPU2GPS('gondola1',gondolaAllPimu1(i_lG:i_bG,1));
  ac_mG(:,n)=[cosd(180) 0 sind(180); 0 1 0; -sind(180) 0 cosd(180)]*[cosd(105) -sind(105) 0; sind(105) cosd(105) 0 ;0 0 1]*ac_mG(:,n);
  end
 
- plot(t_B,ac_mB)
+ plot(t_B)
 
 
 windG=[wind_matrix(:,2)';wind_matrix(:,3)'];
@@ -399,12 +399,9 @@ end
 
 
 
-% a_G=(state(7:9,2:end)-state(7:9,1:end-1))./(t_new(2:end)-t_new(1:end-1));
-% a_BCM=(state(10:12,2:end)-state(10:12,1:end-1))./(t_new(2:end)-t_new(1:end-1));
-% figure
-% plot(t_new(1:end-1),a_G)
-% figure
-% plot(t_new(1:end-1),a_BCM)
+a_G=(state(7:9,2:end)-state(7:9,1:end-1))./(t_new(2:end)-t_new(1:end-1));
+a_BCM=(state(10:12,2:end)-state(10:12,1:end-1))./(t_new(2:end)-t_new(1:end-1));
+
 %% 
 
 %  measurement_count=30650;

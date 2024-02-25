@@ -14,7 +14,8 @@ C_D_B=0.47; %0.38 %1.1;  %BCM drag coefficient (considering as a rectangle with 
 lambda=0; %0.15;    %linear coffcient of evolution of absolute vertical wind on gondola 
 sigma=0;
 rho_gas=0.166; %Helium density [kg/m^3]
-[~, ~, ~, rho_atm_balance] = atmosisa(double(10000)); %balance point at 32 km
+
+ [~, ~, ~, rho_atm_balance] = atmosisa(double(1000)) %balance point at 32 km
 VolB=abs((m_G+m_BCM)/(rho_atm_balance-rho_gas)); %45.0045;  %balloon as a sphere with a radius of 12 m  
 r_balloon=(3*VolB/(4*pi))^(1/3);
 S_BCM=[0.375*0.134+r_balloon^2*pi;0.375*0.134+r_balloon^2*pi;r_balloon^2*pi;]; %BCM normal to flow surface   [m^2] (outer diameter of the plate * height of the plate+ sphere surface normal to flux) 
@@ -41,14 +42,17 @@ dt=0.001;
 %model 1D traslation dynamic
  
 s(:,1)=[0;0;0;0.000000000;0.000000000;l_t;0;0;0;0;0.000000;0.000000;0;0;0];
-[t,s]=ode45(@(t,s) model_function(s,C_D_B,S_BCM,C_D_G,S_G,rho_gas,VolB,g,k,c,l_t,m_G,m_BCM,lambda,sigma,v_ref,z_ref),[1:dt:2000],s(:,1));
+[t,s]=ode45(@(t,s) model_function(s,C_D_B,S_BCM,C_D_G,S_G,rho_gas,VolB,g,k,c,l_t,m_G,m_BCM,lambda,sigma,v_ref,z_ref),[1:dt:600],s(:,1));
 s=s';
  
 
 
 a_G=(s(7:9,2:end)-s(7:9,1:end-1))./dt;
 a_BCM=(s(10:12,2:end)-s(10:12,1:end-1))./dt;
-
+figure
+plot(t(1:end-1),a_G)
+figure
+plot(t(1:end-1),a_BCM)
 
 % [TT, a, pp, rhoG_val] = atmosisa(double(s(3,i)));
 % [TT, a, pp, rhoB_val] = atmosisa(double(s(6,i)));
